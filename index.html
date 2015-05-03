@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>quentinJS</title>
+  <style>
+    body {
+      font-family: arial, sans-serif;
+      padding: 0 15px;
+    }
+    .red {
+      color: red;
+    }
+    .green {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>quentinJS</h1>
+  <ul class="list">
+    <li data-foo="bar" data-info="information" class="item first">item 1</li>
+    <li data-info="secondary-information" class="item second">item 2</li>
+    <li class="item third">item 3</li>
+    <li class="item fourth">item 4</li>
+    <li class="item fifth">item 5</li>
+  </ul>
+  <button onclick="classy('red')">All red</button>
+  <button onclick="classy('green')">All green</button>
+  <button onclick="firstRed()">first red</button>
+  <button onclick="lastRed()">last red</button>
+  <button onclick="thirdRed()">third red</button>
+
+  <script src="quentin.js"></script>
+  <script>
+    var $items = q('li');
+    function classy(name) {
+      $items.toggleClass(name);
+    }
+    function firstRed() {
+      $items.first().toggleClass('red');
+    }
+    function lastRed() {
+      $items.last().toggleClass('red');
+    }
+    function thirdRed() {
+      $items.eq(2).toggleClass('red');
+    }
+  </script>
+</body>
+</html>
