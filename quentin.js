@@ -68,7 +68,7 @@
     return wrapMethods([collection[index]]);
   }
   function data(collection, key) {
-    var results = [], full = (key === undefined), obj;
+    var results = [], full = (key === undefined);
     collection.forEach(function(node) {
       if ( full ) {
         if ( !!Object.keys(node.dataset).length ) {
