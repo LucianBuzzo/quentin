@@ -104,6 +104,7 @@
     collection.find = find.curry(collection);
     return collection;
   }
+
   function q(selector) {
     return wrapMethods(toArray(document.querySelectorAll(selector)));
   }
