@@ -74,6 +74,7 @@ When selection is empty they return an empty collection (safe no-op).
 ## Releases
 
 Versioning/release PRs are managed with Release Please.
+Conventional commit types map to changelog sections (Features, Fixes, Docs, etc.).
 
 ## Commit style
 

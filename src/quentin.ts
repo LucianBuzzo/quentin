@@ -16,7 +16,25 @@
 		querySelectorAll(selector: string): NodeListOf<Element>;
 	};
 
-	type QuentinCollection = QuentinNode[] & { [key: string]: any };
+	type QuentinCollectionMethods = {
+		addClass(name: string): QuentinCollection;
+		removeClass(name: string): QuentinCollection;
+		hasClass(name: string): boolean;
+		find(selector: string): QuentinCollection;
+		first(): QuentinCollection;
+		last(): QuentinCollection;
+		eq(index: number): QuentinCollection;
+		data(key?: string): unknown;
+		dataAll(key?: string): unknown[];
+		dataOne(key?: string): unknown;
+		siblings(): QuentinCollection;
+		parent(): QuentinCollection;
+		children(): QuentinCollection;
+		toggleClass(name: string): QuentinCollection;
+	};
+
+	type QuentinCollection = Omit<QuentinNode[], "find"> &
+		QuentinCollectionMethods;
 
 	function addClass(
 		collection: QuentinNode[],
@@ -164,15 +182,12 @@
 	}
 
 	function wrapMethods(collection: QuentinNode[]): QuentinCollection {
-		const typedCollection = collection as QuentinCollection;
+		const typedCollection = collection as unknown as QuentinCollection;
 
 		typedCollection.addClass = addClass.bind(null, collection);
 		typedCollection.removeClass = removeClass.bind(null, collection);
 		typedCollection.hasClass = hasClass.bind(null, collection);
-		(typedCollection as unknown as Record<string, unknown>).find = find.bind(
-			null,
-			collection,
-		);
+		typedCollection.find = find.bind(null, collection);
 		typedCollection.first = first.bind(null, collection);
 		typedCollection.last = last.bind(null, collection);
 		typedCollection.eq = eq.bind(null, collection);
