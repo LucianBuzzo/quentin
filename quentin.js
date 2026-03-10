@@ -13,7 +13,6 @@
     return JSON.parse(JSON.stringify(value));
   }
   function addClass(collection, name) {
-    console.log(collection);
     collection.forEach(function(node) {
       if ( toArray(node.classList).indexOf(name) === -1 ) {
         node.className = toArray(node.classList).concat(name).join(' ');
@@ -75,10 +74,11 @@
           results.push(quickClone(node.dataset));
         }
       } else {
-        if ( node.dataset[key] ) results.push(node.dataset[key]);
+        if ( Object.prototype.hasOwnProperty.call(node.dataset, key) ) {
+          results.push(node.dataset[key]);
+        }
       }
     });
-    console.log(results);
     return (results.length > 1 ? results : results[0]);
   }
 
@@ -97,7 +97,6 @@
   ];
 
   function wrapMethods(collection) {
-    console.log(collection);
     methods.forEach(function(method) {
       collection[method.name] = method.curry(collection);
     });
