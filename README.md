@@ -1,5 +1,7 @@
 # quentin
 
+![CI](https://github.com/LucianBuzzo/quentin/actions/workflows/ci.yml/badge.svg)
+
 A tiny DOM helper for selecting elements and manipulating CSS classes.
 
 - Size: ~2.38KB minified (`quentin.min.js`)
@@ -14,7 +16,7 @@ A tiny DOM helper for selecting elements and manipulating CSS classes.
 ```
 
 ```js
-q('li.active').removeClass('active').addClass('done');
+q("li.active").removeClass("active").addClass("done");
 ```
 
 ## Development
@@ -22,6 +24,7 @@ q('li.active').removeClass('active').addClass('done');
 ```bash
 npm install
 npm run lint
+npm run typecheck
 npm test
 ```
 
@@ -45,29 +48,28 @@ Returns `true` if at least one selected element has the class.
 ### `find(selector)`
 Find descendants from each selected element.
 
-### `first()`
-Returns a wrapped collection containing only the first element.
-
-### `last()`
-Returns a wrapped collection containing only the last element.
+### `first()` / `last()`
+Returns a wrapped collection containing only the first/last element.
 
 ### `eq(index)`
 Returns a wrapped collection containing only the element at `index`.
+Out-of-range indexes return an empty collection.
 
 ### `data(key?)`
 Reads dataset values.
 
-- `data('foo')` -> single value or array of values
+- `data("foo")` -> single value or array of values
 - `data()` -> single dataset object or array of dataset objects
 
-### `siblings()`
-Returns all children of the first selected element’s parent (includes itself).
+### `dataAll(key?)`
+Always returns an array of matching dataset values (or dataset objects).
 
-### `parent()`
-Returns the parent of the first selected element.
+### `dataOne(key?)`
+Always returns the first matching dataset value/object (or `undefined`).
 
-### `children()`
-Returns children of the first selected element.
+### `siblings()` / `parent()` / `children()`
+Traversal helpers based on the first selected element.
+When selection is empty they return an empty collection (safe no-op).
 
 ## Releases
 

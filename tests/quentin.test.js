@@ -78,6 +78,7 @@ test("find/first/last/eq return expected nodes", () => {
 	expect(found.first()[0]).toBe(li1);
 	expect(found.last()[0]).toBe(li2);
 	expect(found.eq(1)[0]).toBe(li2);
+	expect(found.eq(99).length).toBe(0);
 });
 
 test("data(key) and data() shapes", () => {
@@ -94,6 +95,9 @@ test("data(key) and data() shapes", () => {
 	expect(Array.isArray(all)).toBe(true);
 	assert.deepEqual(all[0], { id: "1", label: "" });
 	assert.deepEqual(all[1], { id: "2" });
+
+	assert.deepEqual(Array.from(q(".row").dataAll("id")), ["1", "2"]);
+	expect(q(".row").dataOne("id")).toBe("1");
 });
 
 test("siblings/parent/children are based on first match", () => {
@@ -102,7 +106,7 @@ test("siblings/parent/children are based on first match", () => {
 	const c3 = makeNode({ className: "c3" });
 	const parent = makeNode({ children: [c1, c2, c3] });
 
-	const q = loadQ({ ".child": [c2] });
+	const q = loadQ({ ".child": [c2], ".missing": [] });
 
 	const siblings = q(".child").siblings();
 	expect(siblings.length).toBe(3);
@@ -112,4 +116,8 @@ test("siblings/parent/children are based on first match", () => {
 
 	expect(q(".child").parent()[0]).toBe(parent);
 	expect(q(".child").parent().children().length).toBe(3);
+
+	expect(q(".missing").siblings().length).toBe(0);
+	expect(q(".missing").parent().length).toBe(0);
+	expect(q(".missing").children().length).toBe(0);
 });

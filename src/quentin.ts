@@ -22,11 +22,11 @@
 		collection: QuentinNode[],
 		name: string,
 	): QuentinCollection {
-		collection.forEach((node) => {
+		for (const node of collection) {
 			if (toArray(node.classList).indexOf(name) === -1) {
 				node.className = toArray(node.classList).concat(name).join(" ");
 			}
-		});
+		}
 		return wrapMethods(collection);
 	}
 
@@ -34,26 +34,24 @@
 		collection: QuentinNode[],
 		name: string,
 	): QuentinCollection {
-		collection.forEach((node) => {
+		for (const node of collection) {
 			const classes = toArray(node.classList);
 			const index = classes.indexOf(name);
 			if (index !== -1) {
 				classes.splice(index, 1);
 				node.className = classes.join(" ");
 			}
-		});
+		}
 		return wrapMethods(collection);
 	}
 
 	function hasClass(collection: QuentinNode[], name: string): boolean {
-		let exists = false;
-		for (let i = 0; i < collection.length; i += 1) {
-			if (toArray(collection[i].classList).indexOf(name) !== -1) {
-				exists = true;
-				break;
+		for (const node of collection) {
+			if (toArray(node.classList).indexOf(name) !== -1) {
+				return true;
 			}
 		}
-		return exists;
+		return false;
 	}
 
 	function toggleClass(
@@ -71,25 +69,30 @@
 		selector: string,
 	): QuentinCollection {
 		let results: QuentinNode[] = [];
-		collection.forEach((node) => {
+		for (const node of collection) {
 			results = results.concat(
 				toArray(
 					node.querySelectorAll(selector) as unknown as ArrayLike<QuentinNode>,
 				),
 			);
-		});
+		}
 		return wrapMethods(results);
 	}
 
 	function first(collection: QuentinNode[]): QuentinCollection {
+		if (!collection.length) return wrapMethods([]);
 		return wrapMethods(collection.slice(0, 1));
 	}
 
 	function last(collection: QuentinNode[]): QuentinCollection {
+		if (!collection.length) return wrapMethods([]);
 		return wrapMethods(collection.slice(-1));
 	}
 
 	function eq(collection: QuentinNode[], index: number): QuentinCollection {
+		if (index < 0 || index >= collection.length) {
+			return wrapMethods([]);
+		}
 		return wrapMethods([collection[index]]);
 	}
 
@@ -97,7 +100,7 @@
 		const results: unknown[] = [];
 		const full = key === undefined;
 
-		collection.forEach((node) => {
+		for (const node of collection) {
 			if (full) {
 				if (Object.keys(node.dataset).length > 0) {
 					results.push(quickClone(node.dataset));
@@ -105,12 +108,36 @@
 			} else if (Object.prototype.hasOwnProperty.call(node.dataset, key)) {
 				results.push(node.dataset[key]);
 			}
-		});
+		}
 
 		return results.length > 1 ? results : results[0];
 	}
 
+	function dataAll(collection: QuentinNode[], key?: string): unknown[] {
+		const full = key === undefined;
+		const results: unknown[] = [];
+
+		for (const node of collection) {
+			if (full) {
+				if (Object.keys(node.dataset).length > 0) {
+					results.push(quickClone(node.dataset));
+				}
+			} else if (Object.prototype.hasOwnProperty.call(node.dataset, key)) {
+				results.push(node.dataset[key]);
+			}
+		}
+
+		return results;
+	}
+
+	function dataOne(collection: QuentinNode[], key?: string): unknown {
+		return dataAll(collection, key)[0];
+	}
+
 	function siblings(collection: QuentinNode[]): QuentinCollection {
+		if (!collection.length || !collection[0].parentNode) {
+			return wrapMethods([]);
+		}
 		return wrapMethods(
 			toArray(
 				collection[0].parentNode.children as unknown as ArrayLike<QuentinNode>,
@@ -119,12 +146,18 @@
 	}
 
 	function parent(collection: QuentinNode[]): QuentinCollection {
+		if (!collection.length || !collection[0].parentNode) {
+			return wrapMethods([]);
+		}
 		return wrapMethods(
 			toArray([collection[0].parentNode as unknown as QuentinNode]),
 		);
 	}
 
 	function children(collection: QuentinNode[]): QuentinCollection {
+		if (!collection.length) {
+			return wrapMethods([]);
+		}
 		return wrapMethods(
 			toArray(collection[0].children as unknown as ArrayLike<QuentinNode>),
 		);
@@ -144,6 +177,8 @@
 		typedCollection.last = last.bind(null, collection);
 		typedCollection.eq = eq.bind(null, collection);
 		typedCollection.data = data.bind(null, collection);
+		typedCollection.dataAll = dataAll.bind(null, collection);
+		typedCollection.dataOne = dataOne.bind(null, collection);
 		typedCollection.siblings = siblings.bind(null, collection);
 		typedCollection.parent = parent.bind(null, collection);
 		typedCollection.children = children.bind(null, collection);
