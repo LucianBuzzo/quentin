@@ -21,8 +21,25 @@ function makeNode({
 
 	Object.defineProperty(node, "classList", {
 		get() {
-			if (!node.className.trim()) return [];
-			return node.className.trim().split(/\s+/);
+			const classes = node.className.trim()
+				? node.className.trim().split(/\s+/)
+				: [];
+			return {
+				add(name) {
+					if (!classes.includes(name)) classes.push(name);
+					node.className = classes.join(" ");
+				},
+				remove(name) {
+					const next = classes.filter((c) => c !== name);
+					node.className = next.join(" ");
+				},
+				contains(name) {
+					return classes.includes(name);
+				},
+				[Symbol.iterator]: function* () {
+					yield* classes;
+				},
+			};
 		},
 	});
 

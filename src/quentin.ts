@@ -1,16 +1,7 @@
 (function () {
-	function toArray<T>(value: ArrayLike<T>): T[] {
-		return Array.prototype.slice.call(value);
-	}
-
-	function quickClone<T>(value: T): T {
-		return JSON.parse(JSON.stringify(value));
-	}
-
 	type QuentinNode = Element & {
 		dataset: DOMStringMap;
 		classList: DOMTokenList;
-		className: string;
 		parentNode: ParentNode & { children: HTMLCollection };
 		children: HTMLCollection;
 		querySelectorAll(selector: string): NodeListOf<Element>;
@@ -36,15 +27,20 @@
 	type QuentinCollection = Omit<QuentinNode[], "find"> &
 		QuentinCollectionMethods;
 
+	const toArray = <T>(value: ArrayLike<T>): T[] =>
+		Array.prototype.slice.call(value);
+
+	const cloneDataset = (
+		dataset: DOMStringMap,
+	): Record<string, string | undefined> => ({
+		...dataset,
+	});
+
 	function addClass(
 		collection: QuentinNode[],
 		name: string,
 	): QuentinCollection {
-		for (const node of collection) {
-			if (toArray(node.classList).indexOf(name) === -1) {
-				node.className = toArray(node.classList).concat(name).join(" ");
-			}
-		}
+		for (const node of collection) node.classList.add(name);
 		return wrapMethods(collection);
 	}
 
@@ -52,23 +48,13 @@
 		collection: QuentinNode[],
 		name: string,
 	): QuentinCollection {
-		for (const node of collection) {
-			const classes = toArray(node.classList);
-			const index = classes.indexOf(name);
-			if (index !== -1) {
-				classes.splice(index, 1);
-				node.className = classes.join(" ");
-			}
-		}
+		for (const node of collection) node.classList.remove(name);
 		return wrapMethods(collection);
 	}
 
 	function hasClass(collection: QuentinNode[], name: string): boolean {
-		for (const node of collection) {
-			if (toArray(node.classList).indexOf(name) !== -1) {
-				return true;
-			}
-		}
+		for (const node of collection)
+			if (node.classList.contains(name)) return true;
 		return false;
 	}
 
@@ -76,10 +62,9 @@
 		collection: QuentinNode[],
 		name: string,
 	): QuentinCollection {
-		if (hasClass(collection, name)) {
-			return removeClass(collection, name);
-		}
-		return addClass(collection, name);
+		return hasClass(collection, name)
+			? removeClass(collection, name)
+			: addClass(collection, name);
 	}
 
 	function find(
@@ -89,62 +74,42 @@
 		let results: QuentinNode[] = [];
 		for (const node of collection) {
 			results = results.concat(
-				toArray(
-					node.querySelectorAll(selector) as unknown as ArrayLike<QuentinNode>,
-				),
+				toArray(node.querySelectorAll(selector) as ArrayLike<QuentinNode>),
 			);
 		}
 		return wrapMethods(results);
 	}
 
 	function first(collection: QuentinNode[]): QuentinCollection {
-		if (!collection.length) return wrapMethods([]);
-		return wrapMethods(collection.slice(0, 1));
+		return wrapMethods(collection.length ? collection.slice(0, 1) : []);
 	}
 
 	function last(collection: QuentinNode[]): QuentinCollection {
-		if (!collection.length) return wrapMethods([]);
-		return wrapMethods(collection.slice(-1));
+		return wrapMethods(collection.length ? collection.slice(-1) : []);
 	}
 
 	function eq(collection: QuentinNode[], index: number): QuentinCollection {
-		if (index < 0 || index >= collection.length) {
-			return wrapMethods([]);
-		}
-		return wrapMethods([collection[index]]);
+		return wrapMethods(
+			index >= 0 && index < collection.length ? [collection[index]] : [],
+		);
 	}
 
 	function data(collection: QuentinNode[], key?: string): unknown {
-		const results: unknown[] = [];
-		const full = key === undefined;
-
-		for (const node of collection) {
-			if (full) {
-				if (Object.keys(node.dataset).length > 0) {
-					results.push(quickClone(node.dataset));
-				}
-			} else if (Object.prototype.hasOwnProperty.call(node.dataset, key)) {
-				results.push(node.dataset[key]);
-			}
-		}
-
+		const results = dataAll(collection, key);
 		return results.length > 1 ? results : results[0];
 	}
 
 	function dataAll(collection: QuentinNode[], key?: string): unknown[] {
 		const full = key === undefined;
 		const results: unknown[] = [];
-
 		for (const node of collection) {
 			if (full) {
-				if (Object.keys(node.dataset).length > 0) {
-					results.push(quickClone(node.dataset));
-				}
+				if (Object.keys(node.dataset).length)
+					results.push(cloneDataset(node.dataset));
 			} else if (Object.prototype.hasOwnProperty.call(node.dataset, key)) {
 				results.push(node.dataset[key]);
 			}
 		}
-
 		return results;
 	}
 
@@ -153,9 +118,7 @@
 	}
 
 	function siblings(collection: QuentinNode[]): QuentinCollection {
-		if (!collection.length || !collection[0].parentNode) {
-			return wrapMethods([]);
-		}
+		if (!collection.length || !collection[0].parentNode) return wrapMethods([]);
 		return wrapMethods(
 			toArray(
 				collection[0].parentNode.children as unknown as ArrayLike<QuentinNode>,
@@ -164,51 +127,39 @@
 	}
 
 	function parent(collection: QuentinNode[]): QuentinCollection {
-		if (!collection.length || !collection[0].parentNode) {
-			return wrapMethods([]);
-		}
-		return wrapMethods(
-			toArray([collection[0].parentNode as unknown as QuentinNode]),
-		);
+		if (!collection.length || !collection[0].parentNode) return wrapMethods([]);
+		return wrapMethods([collection[0].parentNode as unknown as QuentinNode]);
 	}
 
 	function children(collection: QuentinNode[]): QuentinCollection {
-		if (!collection.length) {
-			return wrapMethods([]);
-		}
+		if (!collection.length) return wrapMethods([]);
 		return wrapMethods(
 			toArray(collection[0].children as unknown as ArrayLike<QuentinNode>),
 		);
 	}
 
 	function wrapMethods(collection: QuentinNode[]): QuentinCollection {
-		const typedCollection = collection as unknown as QuentinCollection;
-
-		typedCollection.addClass = addClass.bind(null, collection);
-		typedCollection.removeClass = removeClass.bind(null, collection);
-		typedCollection.hasClass = hasClass.bind(null, collection);
-		typedCollection.find = find.bind(null, collection);
-		typedCollection.first = first.bind(null, collection);
-		typedCollection.last = last.bind(null, collection);
-		typedCollection.eq = eq.bind(null, collection);
-		typedCollection.data = data.bind(null, collection);
-		typedCollection.dataAll = dataAll.bind(null, collection);
-		typedCollection.dataOne = dataOne.bind(null, collection);
-		typedCollection.siblings = siblings.bind(null, collection);
-		typedCollection.parent = parent.bind(null, collection);
-		typedCollection.children = children.bind(null, collection);
-		typedCollection.toggleClass = toggleClass.bind(null, collection);
-
-		return typedCollection;
+		const c = collection as unknown as QuentinCollection;
+		c.addClass = addClass.bind(null, collection);
+		c.removeClass = removeClass.bind(null, collection);
+		c.hasClass = hasClass.bind(null, collection);
+		c.find = find.bind(null, collection);
+		c.first = first.bind(null, collection);
+		c.last = last.bind(null, collection);
+		c.eq = eq.bind(null, collection);
+		c.data = data.bind(null, collection);
+		c.dataAll = dataAll.bind(null, collection);
+		c.dataOne = dataOne.bind(null, collection);
+		c.siblings = siblings.bind(null, collection);
+		c.parent = parent.bind(null, collection);
+		c.children = children.bind(null, collection);
+		c.toggleClass = toggleClass.bind(null, collection);
+		return c;
 	}
 
 	function q(selector: string): QuentinCollection {
 		return wrapMethods(
-			toArray(
-				document.querySelectorAll(
-					selector,
-				) as unknown as ArrayLike<QuentinNode>,
-			),
+			toArray(document.querySelectorAll(selector) as ArrayLike<QuentinNode>),
 		);
 	}
 
