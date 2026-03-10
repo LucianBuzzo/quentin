@@ -1,25 +1,28 @@
 # quentin
-A tiny DOM helper for selecting elements and working with CSS classes + simple traversal.
+
+A tiny DOM helper for selecting elements and manipulating CSS classes.
 
 - Size: ~2.38KB minified (`quentin.min.js`)
 - Demo: https://lucianbuzzo.github.io/quentin/
 
-`q()` returns a wrapped array-like collection of DOM nodes with chainable helper methods.
+`q()` returns a wrapped array-like collection of DOM nodes with chainable methods.
 
-## Quick start
-
-Include the script at the end of `body`:
+## Install / use in browser
 
 ```html
 <script src="quentin.js"></script>
 ```
 
-Then query elements:
-
 ```js
-q('li.active')
-  .removeClass('active')
-  .addClass('done');
+q('li.active').removeClass('active').addClass('done');
+```
+
+## Development
+
+```bash
+npm install
+npm run lint
+npm test
 ```
 
 ## API
@@ -27,95 +30,51 @@ q('li.active')
 ### `q(selector)`
 Selects elements with `document.querySelectorAll(selector)` and wraps them.
 
-Returns: wrapped collection.
-
----
-
 ### `addClass(name)`
-Adds `name` to each element in the collection (if not already present).
-
-Returns: same wrapped collection.
+Adds a class to each element in the collection.
 
 ### `removeClass(name)`
-Removes `name` from each element in the collection.
-
-Returns: same wrapped collection.
+Removes a class from each element in the collection.
 
 ### `toggleClass(name)`
-If any element in the collection has `name`, removes it from all matched elements.
-Otherwise, adds it to all matched elements.
-
-Returns: same wrapped collection.
+If any selected element has the class, remove from all. Otherwise add to all.
 
 ### `hasClass(name)`
-Checks whether **at least one** element in the collection has `name`.
-
-Returns: `boolean`.
-
----
+Returns `true` if at least one selected element has the class.
 
 ### `find(selector)`
-Finds descendants matching `selector` within each matched element.
-
-Returns: new wrapped collection.
+Find descendants from each selected element.
 
 ### `first()`
-Returns a wrapped collection containing the first matched element.
+Returns a wrapped collection containing only the first element.
 
 ### `last()`
-Returns a wrapped collection containing the last matched element.
+Returns a wrapped collection containing only the last element.
 
 ### `eq(index)`
-Returns a wrapped collection containing the element at `index`.
-
----
+Returns a wrapped collection containing only the element at `index`.
 
 ### `data(key?)`
-Reads `dataset` values.
+Reads dataset values.
 
-- `data('foo')`: returns dataset value(s) for key `foo`
-- `data()`: returns full dataset object(s)
-
-Return shape:
-
-- One match -> returns single value/object
-- Multiple matches -> returns array of values/objects
-- No match for key -> `undefined`
-
-Notes:
-
-- Empty-string dataset values are preserved (e.g. `data('label') === ''`)
-- Returned full dataset objects are cloned, so mutating them won’t mutate the DOM dataset directly
-
----
+- `data('foo')` -> single value or array of values
+- `data()` -> single dataset object or array of dataset objects
 
 ### `siblings()`
-Returns all children of the first element’s parent (includes the element itself).
-
-Returns: wrapped collection.
+Returns all children of the first selected element’s parent (includes itself).
 
 ### `parent()`
-Returns the parent of the first matched element.
-
-Returns: wrapped collection.
+Returns the parent of the first selected element.
 
 ### `children()`
-Returns children of the first matched element.
+Returns children of the first selected element.
 
-Returns: wrapped collection.
+## Releases
 
-## Behavior notes
+Versioning/release PRs are managed with Release Please.
 
-- Most traversal methods (`siblings`, `parent`, `children`) operate from the **first** matched element.
-- Methods are designed for browser use and depend on `querySelectorAll`, `classList`, and `dataset`.
-- Collections are arrays with methods attached (not custom class instances).
+## Commit style
 
-## Development
+We use Conventional Commits:
 
-Run tests:
-
-```bash
-node --test
-```
-
-Minified build is committed as `quentin.min.js`.
+- https://www.conventionalcommits.org/en/v1.0.0/

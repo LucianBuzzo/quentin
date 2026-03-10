@@ -2,16 +2,13 @@
 
 Thanks for contributing to `quentin`.
 
-## Development
-
-1. Make your changes.
-2. Run tests:
+## Local setup
 
 ```bash
+npm install
+npm run lint
 npm test
 ```
-
-3. Keep changes focused and small.
 
 ## Pull requests
 
@@ -21,4 +18,10 @@ Please include:
 - Why it changed
 - How you tested it
 
-For behavior changes, add or update tests in `tests/`.
+## Commit messages
+
+Use Conventional Commits:
+
+- https://www.conventionalcommits.org/en/v1.0.0/
+
+A Husky + Commitlint hook checks commit message format.
