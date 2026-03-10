@@ -1,0 +1,11 @@
+{
+  "name": "quentin",
+  "version": "1.0.0",
+  "description": "A tiny DOM helper for selection, class manipulation, and traversal.",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}
